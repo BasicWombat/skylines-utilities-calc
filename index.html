@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skylines Utilities Calc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0e1a;
+    --panel:     #111827;
+    --border:    #1e2d45;
+    --accent:    #00d4ff;
+    --accent2:   #ff6b35;
+    --green:     #39ff14;
+    --yellow:    #ffd600;
+    --red:       #ff3b3b;
+    --muted:     #4a5568;
+    --text:      #cdd6f4;
+    --text-dim:  #6b7a99;
+    --glow:      0 0 12px rgba(0,212,255,0.4);
+    --glow-red:  0 0 12px rgba(255,59,59,0.5);
+    --glow-grn:  0 0 12px rgba(57,255,20,0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrapper { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:24px 20px; }
+
+  /* ── Header ── */
+  header {
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom:18px; margin-bottom:28px;
+    flex-wrap:wrap; gap:12px;
+  }
+  .logo { display:flex; align-items:center; gap:14px; }
+  .logo-icon {
+    width:44px; height:44px;
+    border:2px solid var(--accent);
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    box-shadow: var(--glow);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ box-shadow: var(--glow); }
+    50%    { box-shadow: 0 0 24px rgba(0,212,255,0.7); }
+  }
+  h1 { font-family:'Rajdhani',sans-serif; font-size:1.8rem; font-weight:700; letter-spacing:2px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-family:'Share Tech Mono'; font-size:.7rem; color:var(--text-dim); letter-spacing:3px; text-transform:uppercase; }
+
+  .version-badge {
+    font-family:'Share Tech Mono'; font-size:.65rem;
+    border:1px solid var(--border); padding:4px 10px; border-radius:20px;
+    color:var(--text-dim);
+  }
+
+  /* ── Tabs ── */
+  .tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; }
+  .tab {
+    font-family:'Rajdhani',sans-serif; font-weight:600; font-size:.9rem;
+    letter-spacing:1.5px; text-transform:uppercase;
+    padding:8px 18px; border-radius:4px;
+    border: 1px solid var(--border);
+    background:transparent; color:var(--text-dim);
+    cursor:pointer; transition:all .2s;
+  }
+  .tab:hover { border-color:var(--accent); color:var(--accent); }
+  .tab.active {
+    background:rgba(0,212,255,0.1);
+    border-color:var(--accent); color:var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  /* ── Two-col layout ── */
+  .layout { display:grid; grid-template-columns:320px 1fr; gap:18px; }
+  @media(max-width:800px){ .layout{ grid-template-columns:1fr; } }
+
+  /* ── Panel / card ── */
+  .panel {
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px; padding:20px;
+  }
+  .panel-title {
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:.8rem; letter-spacing:3px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .panel-title::before { content:''; width:3px; height:14px; background:var(--accent); border-radius:2px; }
+
+  /* ── Form controls ── */
+  label { display:block; font-size:.75rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
+  select, input[type=number], input[type=range] {
+    width:100%; padding:9px 12px;
+    background:#0d1526; border:1px solid var(--border); border-radius:5px;
+    color:var(--text); font-family:'Exo 2',sans-serif; font-size:.9rem;
+    outline:none; transition:border-color .2s;
+    margin-bottom:14px;
+  }
+  select:focus, input[type=number]:focus { border-color:var(--accent); box-shadow:var(--glow); }
+  input[type=range] {
+    padding:0; cursor:pointer; accent-color:var(--accent);
+    margin-bottom:4px;
+  }
+  .range-row { display:flex; justify-content:space-between; font-family:'Share Tech Mono'; font-size:.72rem; color:var(--text-dim); margin-bottom:14px; }
+
+  .btn {
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; font-size:.85rem;
+    width:100%; padding:11px; border:none; border-radius:5px;
+    cursor:pointer; transition:all .2s;
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    color:#000; box-shadow: var(--glow);
+  }
+  .btn:hover { filter:brightness(1.15); transform:translateY(-1px); }
+  .btn:active { transform:translateY(0); }
+
+  .btn-secondary {
+    background:transparent; border:1px solid var(--border);
+    color:var(--text-dim); box-shadow:none;
+    margin-top:8px;
+  }
+  .btn-secondary:hover { border-color:var(--accent2); color:var(--accent2); }
+
+  /* ── Stats grid ── */
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+  .stat-card {
+    background:#0d1526; border:1px solid var(--border);
+    border-radius:6px; padding:14px 16px;
+    transition:border-color .3s;
+  }
+  .stat-card.highlight { border-color:var(--accent); }
+  .stat-label { font-size:.68rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:4px; }
+  .stat-value {
+    font-family:'Share Tech Mono'; font-size:1.4rem; font-weight:bold;
+    color:var(--accent);
+  }
+  .stat-value.warn { color:var(--yellow); }
+  .stat-value.danger { color:var(--red); text-shadow: var(--glow-red); }
+  .stat-value.good { color:var(--green); text-shadow: var(--glow-grn); }
+  .stat-unit { font-size:.7rem; color:var(--text-dim); margin-top:2px; }
+
+  /* ── Pollution bar ── */
+  .poll-section { margin-bottom:18px; }
+  .poll-label { display:flex; justify-content:space-between; font-size:.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:6px; }
+  .bar-track {
+    height:8px; background:#0d1526; border-radius:4px;
+    border:1px solid var(--border); overflow:hidden; margin-bottom:10px;
+  }
+  .bar-fill {
+    height:100%; border-radius:4px; transition:width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill.air  { background:linear-gradient(90deg,#ff6b35,#ff3b3b); }
+  .bar-fill.water{ background:linear-gradient(90deg,#3b82f6,#6366f1); }
+  .bar-fill.noise{ background:linear-gradient(90deg,#a855f7,#ec4899); }
+  .bar-fill.ground{ background:linear-gradient(90deg,#92400e,#b45309); }
+
+  /* ── Summary table ── */
+  .summary-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  .summary-table th {
+    font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:2px;
+    text-transform:uppercase; font-size:.72rem; color:var(--text-dim);
+    border-bottom:1px solid var(--border); padding:8px 10px; text-align:left;
+  }
+  .summary-table td { padding:10px 10px; border-bottom:1px solid #161f30; }
+  .summary-table tr:hover td { background:rgba(0,212,255,0.04); }
+  .badge {
+    display:inline-block; padding:2px 8px; border-radius:10px;
+    font-size:.65rem; letter-spacing:1px; text-transform:uppercase;
+    font-family:'Share Tech Mono';
+  }
+  .badge-green { background:rgba(57,255,20,0.15); color:var(--green); border:1px solid rgba(57,255,20,0.3); }
+  .badge-yellow{ background:rgba(255,214,0,0.15); color:var(--yellow); border:1px solid rgba(255,214,0,0.3); }
+  .badge-red   { background:rgba(255,59,59,0.15);  color:var(--red);    border:1px solid rgba(255,59,59,0.3); }
+
+  /* ── Comparison tab ── */
+  .compare-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:14px; }
+  .compare-card {
+    background:#0d1526; border:1px solid var(--border); border-radius:8px; padding:16px;
+    transition: all .25s; cursor:default;
+    position:relative; overflow:hidden;
+  }
+  .compare-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background: var(--accent);
+  }
+  .compare-card.dirty::before { background:var(--red); }
+  .compare-card.mid::before   { background:var(--yellow); }
+  .compare-card.clean::before { background:var(--green); }
+  .compare-card:hover { transform:translateY(-3px); border-color:var(--accent); }
+  .cc-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; letter-spacing:1px; margin-bottom:12px; }
+  .cc-row  { display:flex; justify-content:space-between; font-size:.75rem; color:var(--text-dim); margin-bottom:5px; }
+  .cc-val  { font-family:'Share Tech Mono'; color:var(--text); }
+
+  /* ── Tooltip ── */
+  .tip { font-size:.75rem; color:var(--text-dim); line-height:1.5; padding:10px 12px; background:#0d1526; border-left:3px solid var(--accent); border-radius:0 5px 5px 0; margin-top:8px; }
+
+  /* ── Saved builds ── */
+  .builds-list { display:flex; flex-direction:column; gap:8px; }
+  .build-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 14px; background:#0d1526; border:1px solid var(--border); border-radius:5px;
+  }
+  .build-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:.9rem; }
+  .build-meta { font-size:.72rem; color:var(--text-dim); font-family:'Share Tech Mono'; }
+  .del-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:0 4px; transition:color .2s; }
+  .del-btn:hover { color:var(--red); }
+
+  /* ── Utility category icons ── */
+  .cat-icon { font-size:1.2rem; }
+
+  /* ── Section divider ── */
+  .divider { border:none; border-top:1px solid var(--border); margin:18px 0; }
+
+  /* ── Responsive ── */
+  @media(max-width:600px){
+    .stats-grid{ grid-template-columns:1fr; }
+    h1{ font-size:1.3rem; }
+  }
+
+  /* ── Build item cards ── */
+  .build-item {
+    background:#0d1526; border:1px solid var(--border); border-radius:6px;
+    padding:10px 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    transition: border-color .2s;
+    flex-wrap:wrap;
+  }
+  .build-item:hover { border-color: rgba(0,212,255,0.3); }
+  .build-item-info { flex:1; min-width:0; }
+  .build-item-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .build-item-meta { font-family:'Share Tech Mono'; font-size:.68rem; color:var(--text-dim); margin-top:2px; }
+  .build-item-badge { font-family:'Share Tech Mono'; font-size:.7rem; white-space:nowrap; }
+  .build-item-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:2px 4px; transition:color .2s; flex-shrink:0; }
+  .build-item-del:hover { color:var(--red); }
+
+  /* output breakdown rows */
+  .output-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:7px 12px; background:#0d1526; border:1px solid var(--border);
+    border-radius:5px; margin-bottom:6px; font-size:.78rem;
+  }
+  .output-row-label { color:var(--text-dim); }
+  .output-row-val   { font-family:'Share Tech Mono'; color:var(--accent); }
+  .output-row-cov   { font-family:'Share Tech Mono'; font-size:.7rem; }
+
+  /* ── Reference tab ── */
+  .ref-controls {
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:18px;
+  }
+  .ref-controls select, .ref-controls input[type=text] {
+    width:auto; flex:1; min-width:140px; margin-bottom:0;
+    padding:8px 12px; font-size:.82rem;
+  }
+  .ref-controls input[type=text] { flex:2; min-width:180px; }
+  .ref-sort-hint { font-family:'Share Tech Mono'; font-size:.65rem; color:var(--text-dim); white-space:nowrap; }
+
+  .ref-table-wrap { overflow-x:auto; }
+  .ref-table {
+    width:100%; border-collapse:collapse; font-size:.8rem;
+    min-width:700px;
+  }
+  .ref-table th {
+    font-family:'Rajdhani',sans-serif; font-weight:700; letter-spacing:1.5px;
+    text-transform:uppercase; font-size:.7rem; color:var(--text-dim);
+    border-bottom:2px solid var(--border); padding:10px 12px; text-align:left;
+    cursor:pointer; user-select:none; white-space:nowrap;
+    transition:color .2s;
+    position:relative;
+  }
+  .ref-table th:hover { color:var(--accent); }
+  .ref-table th.sorted-asc::after  { content:' ▲'; color:var(--accent); font-size:.6rem; }
+  .ref-table th.sorted-desc::after { content:' ▼'; color:var(--accent); font-size:.6rem; }
+  .ref-table td {
+    padding:9px 12px; border-bottom:1px solid #161f30;
+    vertical-align:middle;
+  }
+  .ref-table tr:hover td { background:rgba(0,212,255,0.04); }
+  .ref-table td.mono { font-family:'Share Tech Mono'; }
+  .ref-table td.name-cell { font-weight:600; color:var(--text); }
+  .ref-table td.cat-cell  { color:var(--text-dim); font-size:.72rem; }
+
+  /* mini poll dots */
+  .poll-dots { display:flex; gap:3px; align-items:center; }
+  .poll-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:var(--border);
+  }
+  .poll-dot.on-air    { background:#ff3b3b; }
+  .poll-dot.on-water  { background:#6366f1; }
+  .poll-dot.on-noise  { background:#a855f7; }
+  .poll-dot.on-ground { background:#b45309; }
+
+  .ref-row-count { font-family:'Share Tech Mono'; font-size:.68rem; color:var(--text-dim); margin-top:12px; }
+
+  /* ── Animations ── */
+  .panel { animation: fadeIn .4s ease both; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏙️</div>
+      <div>
+        <h1><span>SKYLINES</span> UTILITIES CALC</h1>
+        <div class="subtitle">Cities: Skylines — Utility Efficiency Calculator</div>
+      </div>
+    </div>
+    <div class="version-badge">v1.0 · skylines-utilities-calc</div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('calculator')">⚡ Calculator</button>
+    <button class="tab" onclick="switchTab('compare')">📊 Compare All</button>
+    <button class="tab" onclick="switchTab('saved')">💾 Saved Builds</button>
+    <button class="tab" onclick="switchTab('reference')">📋 Data Reference</button>
+    <button class="tab" onclick="switchTab('guide')">📖 Guide</button>
+  </div>
+
+  <!-- ── TAB: CALCULATOR ── -->
+  <div id="tab-calculator" class="tab-content active">
+
+    <!-- Top: Population (global) -->
+    <div class="panel" style="margin-bottom:16px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px;">
+        <label style="margin-bottom:4px;">🏙 City Population</label>
+        <input type="number" id="population" value="10000" min="100" step="500" onchange="recalcAll()" style="margin-bottom:0;">
+      </div>
+      <div style="flex:2; min-width:260px;">
+        <div class="tip" style="margin-top:0;">Add any combination of utilities below. Each line is independent — totals are summed in the results panel.</div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn" style="width:auto; padding:10px 20px;" onclick="saveFullBuild()">💾 Save Full Build</button>
+        <button class="btn btn-secondary" style="width:auto; padding:10px 20px; margin-top:0;" onclick="clearAllItems()">🗑 Clear All</button>
+      </div>
+    </div>
+
+    <div class="layout">
+
+      <!-- Left: Add utility form -->
+      <div>
+        <div class="panel">
+          <div class="panel-title">Add Utility</div>
+
+          <label>Category</label>
+          <select id="category" onchange="onCategoryChange()">
+            <option value="power">⚡ Power Plants</option>
+            <option value="water">💧 Water / Sewage</option>
+            <option value="waste">🗑️ Waste Management</option>
+            <option value="healthcare">🏥 Healthcare</option>
+            <option value="education">🎓 Education</option>
+            <option value="fire">🚒 Fire Services</option>
+            <option value="police">👮 Police</option>
+          </select>
+
+          <label>Building Type</label>
+          <select id="buildingType"></select>
+
+          <label>Number of Buildings</label>
+          <input type="number" id="quantity" value="1" min="1" max="50">
+
+          <label>Budget: <span id="budgetPct">100</span>%</label>
+          <input type="range" id="budget" min="50" max="150" value="100" step="5" oninput="document.getElementById('budgetPct').textContent=this.value">
+          <div class="range-row"><span>50%</span><span>100%</span><span>150%</span></div>
+
+          <button class="btn" onclick="addItem()">+ Add to Build</button>
+        </div>
+
+        <!-- Build list -->
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-title">Current Build</div>
+          <div id="buildItems" style="display:flex;flex-direction:column;gap:8px;">
+            <div id="emptyBuildMsg" style="color:var(--text-dim);font-size:.82rem;padding:6px 0;">No utilities added yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Totals + Pollution -->
+      <div style="display:flex;flex-direction:column;gap:18px;">
+
+        <!-- Totals -->
+        <div class="panel">
+          <div class="panel-title">Combined Totals</div>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Total Build Cost</div><div class="stat-value" id="sv-cost">₡0</div><div class="stat-unit">upfront</div></div>
+            <div class="stat-card"><div class="stat-label">Total Monthly</div><div class="stat-value" id="sv-maint">₡0</div><div class="stat-unit">₡ / month</div></div>
+            <div class="stat-card"><div class="stat-label">Avg Efficiency</div><div class="stat-value" id="sv-eff">—</div><div class="stat-unit">output / ₡</div></div>
+            <div class="stat-card"><div class="stat-label">Total Utilities</div><div class="stat-value" id="sv-count">0</div><div class="stat-unit">buildings</div></div>
+          </div>
+
+          <!-- Per-category output breakdown -->
+          <div id="outputBreakdown" style="margin-top:4px;"></div>
+        </div>
+
+        <!-- Per-item summary table -->
+        <div class="panel">
+          <div class="panel-title">Build Breakdown</div>
+          <div style="overflow-x:auto;">
+            <table class="summary-table" id="breakdownTable">
+              <thead>
+                <tr>
+                  <th>Building</th>
+                  <th>Qty</th>
+                  <th>Budget</th>
+                  <th>Build Cost</th>
+                  <th>Monthly</th>
+                  <th>Output</th>
+                  <th>Coverage</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="breakdownBody">
+                <tr><td colspan="8" style="color:var(--text-dim);font-size:.8rem;padding:14px 10px;">Add utilities to see the breakdown.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Combined Pollution -->
+        <div class="panel">
+          <div class="panel-title">Combined Pollution Impact</div>
+          <div class="poll-section">
+            <div class="poll-label"><span>🌫 Air Pollution</span><span id="pv-air">0%</span></div>
+            <div class="bar-track"><div class="bar-fill air" id="pb-air" style="width:0%"></div></div>
+            <div class="poll-label"><span>💧 Water Pollution</span><span id="pv-water">0%</span></div>
+            <div class="bar-track"><div class="bar-fill water" id="pb-water" style="width:0%"></div></div>
+            <div class="poll-label"><span>🔊 Noise Pollution</span><span id="pv-noise">0%</span></div>
+            <div class="bar-track"><div class="bar-fill noise" id="pb-noise" style="width:0%"></div></div>
+            <div class="poll-label"><span>🌍 Ground Pollution</span><span id="pv-ground">0%</span></div>
+            <div class="bar-track"><div class="bar-fill ground" id="pb-ground" style="width:0%"></div></div>
+          </div>
+          <div id="poll-rating" class="tip">Add utilities to see pollution summary.</div>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /tab-calculator -->
+
+  <!-- ── TAB: COMPARE ALL ── -->
+  <div id="tab-compare" class="tab-content">
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">All Power Plants — Quick Comparison</div>
+      <div class="compare-grid" id="compareGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Water &amp; Sewage Comparison</div>
+      <div class="compare-grid" id="compareGridWater"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: SAVED BUILDS ── -->
+  <div id="tab-saved" class="tab-content">
+    <div class="panel">
+      <div class="panel-title">Saved Builds</div>
+      <div class="builds-list" id="buildsList">
+        <div style="color:var(--text-dim); font-size:.85rem; padding:10px 0;">No saves yet. Calculate a build and click "Save This Build".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: DATA REFERENCE ── -->
+  <div id="tab-reference" class="tab-content">
+    <div class="panel">
+      <div class="panel-title">All Utility Stats — Full Reference</div>
+      <div class="ref-controls">
+        <select id="ref-cat-filter" onchange="renderRefTable()">
+          <option value="all">All Categories</option>
+          <option value="power">⚡ Power Plants</option>
+          <option value="water">💧 Water / Sewage</option>
+          <option value="waste">🗑️ Waste Management</option>
+          <option value="healthcare">🏥 Healthcare</option>
+          <option value="education">🎓 Education</option>
+          <option value="fire">🚒 Fire Services</option>
+          <option value="police">👮 Police</option>
+        </select>
+        <input type="text" id="ref-search" placeholder="Search buildings…" oninput="renderRefTable()">
+        <span class="ref-sort-hint">Click column headers to sort</span>
+      </div>
+      <div class="ref-table-wrap">
+        <table class="ref-table" id="refTable">
+          <thead>
+            <tr>
+              <th onclick="sortRef('name')"     id="rh-name">Building</th>
+              <th onclick="sortRef('cat')"      id="rh-cat">Category</th>
+              <th onclick="sortRef('cost')"     id="rh-cost">Build Cost</th>
+              <th onclick="sortRef('upkeep')"   id="rh-upkeep">Monthly Upkeep</th>
+              <th onclick="sortRef('output')"   id="rh-output">Output</th>
+              <th onclick="sortRef('capPer')"   id="rh-capPer">Capacity</th>
+              <th onclick="sortRef('eff')"      id="rh-eff">Eff. Ratio</th>
+              <th onclick="sortRef('totalPoll')"id="rh-totalPoll">Pollution</th>
+              <th>Air</th>
+              <th>Water</th>
+              <th>Noise</th>
+              <th>Ground</th>
+            </tr>
+          </thead>
+          <tbody id="refTbody"></tbody>
+        </table>
+      </div>
+      <div class="ref-row-count" id="refRowCount"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: GUIDE ── -->
+  <div id="tab-guide" class="tab-content">
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-title">How to Use</div>
+        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim); margin-bottom:12px;">
+          1. Choose a <strong style="color:var(--text)">category</strong> (Power, Water, Waste, etc.)<br>
+          2. Pick a specific <strong style="color:var(--text)">building type</strong><br>
+          3. Set the number of buildings you want to place<br>
+          4. Adjust the <strong style="color:var(--text)">budget slider</strong> (50–150%) to simulate funding cuts or boosts<br>
+          5. Enter your approximate <strong style="color:var(--text)">city population</strong><br>
+          6. Hit <strong style="color:var(--accent)">Calculate Efficiency</strong>
+        </p>
+        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+          The <strong style="color:var(--text)">Output/₡ ratio</strong> is your key efficiency metric — higher is better.
+          <br>The <strong style="color:var(--text)">Break-even</strong> estimate shows how many months of operation before the build cost is offset by the city income generated.
+        </p>
+        <hr class="divider">
+        <div class="panel-title">Pollution Guide</div>
+        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+          <strong style="color:var(--red)">0–30% (Low)</strong> — Safe to place near residential zones<br>
+          <strong style="color:var(--yellow)">31–60% (Medium)</strong> — Use a buffer zone of 2–4 blocks<br>
+          <strong style="color:var(--red)">61%+ (High)</strong> — Industrial zones only, or use noise/pollution policies
+        </p>
+        <hr class="divider">
+        <div class="panel-title">Tips &amp; Tricks</div>
+        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+          • Wind Turbines &amp; Solar have zero pollution but need large footprints<br>
+          • Nuclear power has a high build cost but excellent long-term value<br>
+          • Water towers are cheap early-game but don't scale well<br>
+          • Combine small &amp; large sewage plants for balanced coverage<br>
+          • Running budget above 100% increases output and below 100% reduces upkeep but degrades service
+        </p>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Data Reference</div>
+        <p style="font-size:.78rem; color:var(--text-dim); line-height:1.6; margin-bottom:12px;">
+          All figures are based on Cities: Skylines base game + After Dark values. DLC buildings (Sunset Harbour, Industries, etc.) may differ slightly. Budget adjustments are linear approximations.
+        </p>
+        <table class="summary-table">
+          <thead>
+            <tr><th>Metric</th><th>Unit</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Build Cost</td><td>₡ (Cimoleons)</td><td>One-time placement</td></tr>
+            <tr><td>Upkeep</td><td>₡/week</td><td>Shown as monthly (×4)</td></tr>
+            <tr><td>Output</td><td>MW / m³ / units</td><td>At 100% budget</td></tr>
+            <tr><td>Pollution</td><td>0–100%</td><td>Relative severity scale</td></tr>
+            <tr><td>Coverage</td><td>% of pop</td><td>Based on per-building capacity</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const DATA = {
+  power: [
+    { name:'Coal Power Plant',    cost:30000, upkeep:840,  output:120, unit:'MW', capPer:3000,  pollution:{air:90, water:20, noise:50, ground:30}, tip:'Cheapest large output early-game. Heavy air pollution — keep away from residential areas.' },
+    { name:'Oil Power Plant',     cost:40000, upkeep:1000, output:135, unit:'MW', capPer:3375,  pollution:{air:80, water:40, noise:45, ground:20}, tip:'Good output but costly upkeep. Oil spills add water pollution risk.' },
+    { name:'Wind Turbine',        cost:3500,  upkeep:160,  output:8,   unit:'MW', capPer:200,   pollution:{air:0,  water:0,  noise:20, ground:0},  tip:'Zero air pollution. Needs open terrain. Stack many for large cities — very efficient long-term.' },
+    { name:'Large Wind Turbine',  cost:12000, upkeep:500,  output:24,  unit:'MW', capPer:600,   pollution:{air:0,  water:0,  noise:30, ground:0},  tip:'Better MW/₡ than small turbines. Still no air pollution — ideal for green cities.' },
+    { name:'Solar Power Plant',   cost:22000, upkeep:480,  output:54,  unit:'MW', capPer:1350,  pollution:{air:0,  water:0,  noise:0,  ground:5},  tip:'Clean energy with no air/noise pollution. Good mid-game option. Output is weather-independent in-game.' },
+    { name:'Nuclear Power Plant', cost:100000,upkeep:2800, output:640, unit:'MW', capPer:16000, pollution:{air:0,  water:10, noise:20, ground:5},  tip:'Highest output in the game. Expensive upfront but great ROI for large cities. Very low pollution.' },
+    { name:'Fusion Power Plant',  cost:300000,upkeep:5000, output:1600,unit:'MW', capPer:40000, pollution:{air:0,  water:0,  noise:10, ground:0},  tip:'End-game powerhouse. Massive output, minimal pollution. Worth it for mega cities.' },
+    { name:'Geothermal Plant',    cost:45000, upkeep:900,  output:60,  unit:'MW', capPer:1500,  pollution:{air:5,  water:5,  noise:15, ground:10}, tip:'Very clean and consistent. Available in volcano map themes. Excellent for green playthroughs.' },
+  ],
+  water: [
+    { name:'Water Tower',         cost:2000,  upkeep:160,  output:1600, unit:'m³/w', capPer:400,  pollution:{air:0, water:0, noise:10, ground:0}, tip:'Great early-game starter. Limited capacity — you\'ll need many for a growing city.' },
+    { name:'Water Pumping Station',cost:7500,  upkeep:640,  output:16000,unit:'m³/w',capPer:4000, pollution:{air:0, water:0, noise:20, ground:0}, tip:'Must be placed on river/lake shore. High capacity, essential for mid-large cities.' },
+    { name:'Large Water Pump',    cost:25000, upkeep:1500, output:48000,unit:'m³/w',capPer:12000, pollution:{air:0, water:0, noise:25, ground:0}, tip:'Best water per ₡ in the game. Needs good water source. Pair with filtration for clean supply.' },
+    { name:'Sewage Outlet',       cost:3200,  upkeep:200,  output:3200, unit:'m³/w', capPer:800,  pollution:{air:10,water:80,noise:5,  ground:20},tip:'Cheapest sewage option. High water pollution — always place downstream and away from intakes.' },
+    { name:'Water Drain Pipe',    cost:12000, upkeep:600,  output:12000,unit:'m³/w',capPer:3000, pollution:{air:5, water:70,noise:10, ground:15},tip:'Mid-tier sewage. Still pollutes — consider upgrading to treatment plants as city grows.' },
+    { name:'Water Treatment Plant',cost:22000,upkeep:1200, output:24000,unit:'m³/w',capPer:6000, pollution:{air:5, water:15,noise:20, ground:10},tip:'Best sewage solution. Dramatically reduces water pollution. Worth the upkeep in mid-late game.' },
+  ],
+  waste: [
+    { name:'Landfill Site',       cost:18000, upkeep:240,  output:500000,unit:'kg', capPer:125000,pollution:{air:20,water:30,noise:20,ground:80}, tip:'Early game staple but fills up. Produces significant ground pollution. Relocate when decommissioning.' },
+    { name:'Incineration Plant',  cost:30000, upkeep:960,  output:48000, unit:'kg/w',capPer:12000,pollution:{air:70,water:10,noise:40,ground:10}, tip:'Processes waste continuously but generates heavy air pollution. Zone industrial buffer.' },
+    { name:'Recycling Centre',    cost:35000, upkeep:1200, output:36000, unit:'kg/w',capPer:9000, pollution:{air:15,water:10,noise:30,ground:10}, tip:'Lower pollution than incinerators with moderate throughput. Good for eco-friendly cities.' },
+    { name:'Waste Transfer Facility',cost:45000,upkeep:1600,output:60000,unit:'kg/w',capPer:15000,pollution:{air:25,water:15,noise:35,ground:20}, tip:'Boosts overall garbage collection efficiency. Best used alongside other waste facilities.' },
+  ],
+  healthcare: [
+    { name:'Medical Clinic',      cost:12000, upkeep:800,  output:500,   unit:'pts', capPer:500,  pollution:{air:0, water:0, noise:10, ground:0}, tip:'Good early-game coverage. Cheap to run, serves small residential areas well.' },
+    { name:'Hospital',            cost:70000, upkeep:3200, output:2500,  unit:'pts', capPer:2500, pollution:{air:0, water:0, noise:15, ground:0}, tip:'Major healthcare for large districts. High upkeep but vital for city health happiness.' },
+    { name:'Medical Helicopter Depot',cost:20000,upkeep:1200,output:800, unit:'pts', capPer:800,  pollution:{air:5, water:0, noise:40, ground:0}, tip:'Covers a wide area. Noise pollution from heli traffic — place away from residential.' },
+    { name:'Sauna (After Dark)',  cost:8000,  upkeep:400,  output:300,   unit:'pts', capPer:300,  pollution:{air:0, water:0, noise:5,  ground:0}, tip:'Unique leisure-health hybrid. Boosts happiness and provides minor health bonus.' },
+  ],
+  education: [
+    { name:'Elementary School',   cost:8000,  upkeep:640,  output:500,   unit:'students', capPer:500,  pollution:{air:0, water:0, noise:15, ground:0}, tip:'Foundation of education. Place in each residential district. Low upkeep, essential early.' },
+    { name:'High School',         cost:15000, upkeep:960,  output:1000,  unit:'students', capPer:1000, pollution:{air:0, water:0, noise:20, ground:0}, tip:'Feeds skilled workers. One per medium district. Pairs well with commercial zoning.' },
+    { name:'University',          cost:35000, upkeep:2400, output:2500,  unit:'students', capPer:2500, pollution:{air:0, water:0, noise:25, ground:0}, tip:'Unlocks high-density office zones. High cost but critical for late-game growth.' },
+    { name:'Library',             cost:6000,  upkeep:320,  output:200,   unit:'students', capPer:200,  pollution:{air:0, water:0, noise:5,  ground:0}, tip:'Cheap education booster. Great for filling coverage gaps between schools.' },
+  ],
+  fire: [
+    { name:'Fire Station',        cost:15000, upkeep:960,  output:400,   unit:'coverage', capPer:4000, pollution:{air:5, water:0, noise:30, ground:0}, tip:'Standard coverage. One per dense district. Noise from sirens — minor concern.' },
+    { name:'Fire Helicopter Depot',cost:25000,upkeep:1600, output:800,   unit:'coverage', capPer:8000, pollution:{air:10,water:0, noise:50, ground:0}, tip:'Excellent range for large/spread cities. Higher noise — avoid placing near parks.' },
+  ],
+  police: [
+    { name:'Police Station',      cost:15000, upkeep:960,  output:400,   unit:'coverage', capPer:5000, pollution:{air:0, water:0, noise:20, ground:0}, tip:'Essential for crime control. Cover residential and commercial zones first.' },
+    { name:'Police Helicopter Depot',cost:25000,upkeep:1600,output:800,  unit:'coverage', capPer:10000,pollution:{air:5, water:0, noise:50, ground:0}, tip:'Wide area coverage. Higher noise. Most effective in sprawling low-density cities.' },
+  ],
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let saves = JSON.parse(localStorage.getItem('cs_saves')||'[]');
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.onload = () => {
+  onCategoryChange();
+  buildCompare();
+  renderSaves();
+  renderRefTable();
+};
+
+function onCategoryChange() {
+  const cat = document.getElementById('category').value;
+  const sel = document.getElementById('buildingType');
+  sel.innerHTML = DATA[cat].map((b,i)=>`<option value="${i}">${b.name}</option>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// MULTI-ITEM BUILD STATE
+// ─────────────────────────────────────────────
+let buildItems = []; // [{id, cat, buildingIdx, qty, budget}]
+let nextId = 1;
+
+const CAT_ICONS = {
+  power:'⚡', water:'💧', waste:'🗑️', healthcare:'🏥',
+  education:'🎓', fire:'🚒', police:'👮'
+};
+
+function addItem() {
+  const cat  = document.getElementById('category').value;
+  const idx  = parseInt(document.getElementById('buildingType').value);
+  const qty  = Math.max(1, parseInt(document.getElementById('quantity').value)||1);
+  const budget = parseInt(document.getElementById('budget').value);
+  buildItems.push({ id: nextId++, cat, buildingIdx: idx, qty, budget });
+  renderBuildList();
+  recalcAll();
+}
+
+function removeItem(id) {
+  buildItems = buildItems.filter(i => i.id !== id);
+  renderBuildList();
+  recalcAll();
+}
+
+function clearAllItems() {
+  buildItems = [];
+  renderBuildList();
+  recalcAll();
+}
+
+function renderBuildList() {
+  const container = document.getElementById('buildItems');
+  const emptyMsg  = document.getElementById('emptyBuildMsg');
+  if (!buildItems.length) {
+    container.innerHTML = '';
+    container.appendChild(emptyMsg);
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+  container.innerHTML = buildItems.map(item => {
+    const b = DATA[item.cat][item.buildingIdx];
+    const cost  = b.cost * item.qty;
+    const maint = Math.round(b.upkeep * item.qty * 4 * (item.budget/100));
+    const out   = Math.round(b.output * item.qty * (item.budget/100));
+    const pollTotal = Object.values(b.pollution).reduce((a,c)=>a+c,0);
+    const pollCls = pollTotal < 60 ? 'badge-green' : pollTotal < 140 ? 'badge-yellow' : 'badge-red';
+    return `
+      <div class="build-item">
+        <div class="build-item-info">
+          <div class="build-item-name">${CAT_ICONS[item.cat]} ${item.qty}× ${b.name}</div>
+          <div class="build-item-meta">₡${fmt(cost)} · ₡${fmt(maint)}/mo · ${fmt(out)} ${b.unit} · ${item.budget}%</div>
+        </div>
+        <span class="badge ${pollCls} build-item-badge">${pollTotal < 60 ? 'Low Poll' : pollTotal < 140 ? 'Med Poll' : 'High Poll'}</span>
+        <button class="build-item-del" onclick="removeItem(${item.id})" title="Remove">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function recalcAll() {
+  const pop = parseInt(document.getElementById('population').value)||10000;
+
+  if (!buildItems.length) {
+    // Reset all displays
+    document.getElementById('sv-cost').textContent  = '₡0';
+    document.getElementById('sv-maint').textContent = '₡0';
+    document.getElementById('sv-eff').textContent   = '—';
+    document.getElementById('sv-count').textContent = '0';
+    document.getElementById('sv-cost').className  = 'stat-value';
+    document.getElementById('sv-eff').className   = 'stat-value';
+    for (const k of ['air','water','noise','ground']) {
+      document.getElementById('pv-'+k).textContent = '0%';
+      document.getElementById('pb-'+k).style.width = '0%';
+    }
+    document.getElementById('poll-rating').innerHTML = 'Add utilities to see pollution summary.';
+    document.getElementById('outputBreakdown').innerHTML = '';
+    document.getElementById('breakdownBody').innerHTML =
+      '<tr><td colspan="8" style="color:var(--text-dim);font-size:.8rem;padding:14px 10px;">Add utilities to see the breakdown.</td></tr>';
+    return;
+  }
+
+  let totalCost  = 0, totalMaint = 0;
+  let totalWeightedEff = 0, totalEffWeight = 0;
+  let totalBuildings = 0;
+
+  // Pollution: weighted average across all items
+  const pollSum = { air:0, water:0, noise:0, ground:0 };
+  let pollCount = 0;
+
+  // Per-category outputs
+  const catOutputs = {};
+
+  // Breakdown rows
+  const rows = [];
+
+  for (const item of buildItems) {
+    const b      = DATA[item.cat][item.buildingIdx];
+    const bud    = item.budget / 100;
+    const cost   = b.cost  * item.qty;
+    const maint  = b.upkeep * item.qty * 4 * bud;
+    const output = b.output * item.qty * bud;
+    const eff    = output / (maint || 1);
+    const coverage = Math.min(100, ((b.capPer * item.qty) / pop * 100));
+
+    totalCost  += cost;
+    totalMaint += maint;
+    totalWeightedEff += eff * maint;
+    totalEffWeight   += maint;
+    totalBuildings   += item.qty;
+
+    // Pollution average (per-building weight)
+    for (const [k,v] of Object.entries(b.pollution)) {
+      pollSum[k] += Math.min(100, v * Math.min(1.5, bud)) * item.qty;
+    }
+    pollCount += item.qty;
+
+    // Category output grouping
+    if (!catOutputs[item.cat]) catOutputs[item.cat] = { total:0, unit:b.unit, capacity:0 };
+    catOutputs[item.cat].total    += output;
+    catOutputs[item.cat].capacity += b.capPer * item.qty;
+
+    // Coverage class
+    const covClass = coverage >= 90 ? 'good' : coverage >= 60 ? 'warn' : 'danger';
+
+    rows.push(`
+      <tr>
+        <td style="font-weight:600">${CAT_ICONS[item.cat]} ${b.name}</td>
+        <td style="font-family:'Share Tech Mono'">${item.qty}</td>
+        <td style="font-family:'Share Tech Mono'">${item.budget}%</td>
+        <td style="font-family:'Share Tech Mono'">₡${fmt(cost)}</td>
+        <td style="font-family:'Share Tech Mono'">₡${fmt(Math.round(maint))}</td>
+        <td style="font-family:'Share Tech Mono'">${fmt(Math.round(output))} <span style="color:var(--text-dim);font-size:.7rem">${b.unit}</span></td>
+        <td style="font-family:'Share Tech Mono'" class="${covClass}">${coverage.toFixed(1)}%</td>
+        <td><button class="build-item-del" onclick="removeItem(${item.id})" title="Remove">✕</button></td>
+      </tr>
+    `);
+  }
+
+  // Weighted avg efficiency
+  const avgEff = totalEffWeight > 0 ? (totalWeightedEff / totalEffWeight) : 0;
+  const effClass = avgEff > 2 ? 'good' : avgEff > 1 ? '' : 'warn';
+
+  // Avg pollution (per building)
+  const pollAvg = {};
+  for (const k of ['air','water','noise','ground']) {
+    pollAvg[k] = pollCount > 0 ? Math.min(100, Math.round(pollSum[k] / pollCount)) : 0;
+  }
+  const totalPollAvg = Object.values(pollAvg).reduce((a,c)=>a+c,0);
+
+  // Render stat cards
+  document.getElementById('sv-cost').textContent  = '₡'+fmt(Math.round(totalCost));
+  document.getElementById('sv-maint').textContent = '₡'+fmt(Math.round(totalMaint));
+  document.getElementById('sv-eff').textContent   = avgEff.toFixed(2);
+  document.getElementById('sv-eff').className     = 'stat-value ' + effClass;
+  document.getElementById('sv-count').textContent = totalBuildings;
+
+  // Pollution bars
+  for (const [k,v] of Object.entries(pollAvg)) {
+    document.getElementById('pv-'+k).textContent = v+'%';
+    document.getElementById('pb-'+k).style.width = v+'%';
+  }
+
+  // Pollution rating
+  let rating='', ratingColor='';
+  if (totalPollAvg < 60)       { rating='✅ Low overall — Mix is safe near most zones.';    ratingColor=''; }
+  else if (totalPollAvg < 140) { rating='⚠️ Moderate — Consider zoning buffers.';          ratingColor='color:var(--yellow)'; }
+  else                          { rating='🚨 High — Keep utilities away from residential!'; ratingColor='color:var(--red)'; }
+  document.getElementById('poll-rating').innerHTML = `<span style="${ratingColor}">${rating}</span>`;
+
+  // Output breakdown by category
+  const breakdown = document.getElementById('outputBreakdown');
+  breakdown.innerHTML = Object.entries(catOutputs).map(([cat, o]) => {
+    const coverage = Math.min(100, (o.capacity / pop * 100)).toFixed(1);
+    const covClass = parseFloat(coverage) >= 90 ? 'var(--green)' : parseFloat(coverage) >= 60 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="output-row">
+      <span class="output-row-label">${CAT_ICONS[cat]} ${cat.charAt(0).toUpperCase()+cat.slice(1)} output</span>
+      <span class="output-row-val">${fmt(Math.round(o.total))} ${o.unit}</span>
+      <span class="output-row-cov" style="color:${covClass}">${coverage}% pop covered</span>
+    </div>`;
+  }).join('');
+
+  // Breakdown table
+  document.getElementById('breakdownBody').innerHTML = rows.join('') + `
+    <tr style="border-top:2px solid var(--border);">
+      <td colspan="3" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:1px;color:var(--accent);">TOTALS</td>
+      <td style="font-family:'Share Tech Mono';font-weight:bold">₡${fmt(Math.round(totalCost))}</td>
+      <td style="font-family:'Share Tech Mono';font-weight:bold">₡${fmt(Math.round(totalMaint))}</td>
+      <td colspan="3"></td>
+    </tr>
+  `;
+}
+
+function fmt(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+  if (n >= 1000)    return (n/1000).toFixed(1)+'K';
+  return n.toString();
+}
+
+// ─────────────────────────────────────────────
+// SAVE BUILDS
+// ─────────────────────────────────────────────
+function saveFullBuild() {
+  if (!buildItems.length) { alert('Add some utilities first!'); return; }
+  const pop = parseInt(document.getElementById('population').value)||10000;
+  let totalCost=0, totalMaint=0;
+  const parts = buildItems.map(item => {
+    const b = DATA[item.cat][item.buildingIdx];
+    totalCost  += b.cost * item.qty;
+    totalMaint += Math.round(b.upkeep * item.qty * 4 * (item.budget/100));
+    return `${item.qty}× ${b.name} (${item.budget}%)`;
+  });
+  const entry = {
+    id: Date.now(),
+    name: parts.slice(0,2).join(', ') + (parts.length > 2 ? ` +${parts.length-2} more` : ''),
+    detail: parts.join(' | '),
+    pop, cost: totalCost, maint: totalMaint,
+    count: buildItems.reduce((a,i)=>a+i.qty,0),
+  };
+  saves.unshift(entry);
+  if (saves.length > 20) saves.pop();
+  localStorage.setItem('cs_saves', JSON.stringify(saves));
+  renderSaves();
+  switchTab('saved');
+}
+
+function renderSaves() {
+  const el = document.getElementById('buildsList');
+  if (!saves.length) {
+    el.innerHTML = '<div style="color:var(--text-dim); font-size:.85rem; padding:10px 0;">No saves yet. Build a city layout and click "Save Full Build".</div>';
+    return;
+  }
+  el.innerHTML = saves.map(s=>`
+    <div class="build-row">
+      <div style="min-width:0;flex:1;">
+        <div class="build-name">${s.name}</div>
+        <div class="build-meta" style="white-space:normal;line-height:1.5;">${s.detail || ''}</div>
+        <div class="build-meta" style="margin-top:3px;">₡${fmt(s.cost)} upfront · ₡${fmt(s.maint)}/mo · ${s.count} buildings · pop ${fmt(s.pop)}</div>
+      </div>
+      <button class="del-btn" onclick="deleteSave(${s.id})" title="Delete">✕</button>
+    </div>
+  `).join('');
+}
+
+function deleteSave(id) {
+  saves = saves.filter(s=>s.id!==id);
+  localStorage.setItem('cs_saves', JSON.stringify(saves));
+  renderSaves();
+}
+
+// ─────────────────────────────────────────────
+// COMPARE TAB
+// ─────────────────────────────────────────────
+function buildCompare() {
+  buildCompareGrid('compareGrid',  DATA.power,  b=>b.pollution.air+b.pollution.water+b.pollution.ground > 80 ? 'dirty' : b.pollution.air < 10 ? 'clean' : 'mid');
+  buildCompareGrid('compareGridWater', DATA.water, b=>b.pollution.water > 50 ? 'dirty' : b.pollution.water < 20 ? 'clean' : 'mid');
+}
+
+function buildCompareGrid(id, list, classFunc) {
+  const el = document.getElementById(id);
+  el.innerHTML = list.map(b=>{
+    const eff = (b.output / (b.upkeep*4)).toFixed(2);
+    const pClass = classFunc(b);
+    const totalPoll = Object.values(b.pollution).reduce((a,c)=>a+c,0);
+    const pollLabel = totalPoll < 60 ? '<span class="badge badge-green">Low</span>' : totalPoll < 140 ? '<span class="badge badge-yellow">Medium</span>' : '<span class="badge badge-red">High</span>';
+    return `
+      <div class="compare-card ${pClass}">
+        <div class="cc-name">${b.name}</div>
+        <div class="cc-row"><span>Build Cost</span><span class="cc-val">₡${fmt(b.cost)}</span></div>
+        <div class="cc-row"><span>Monthly</span><span class="cc-val">₡${fmt(b.upkeep*4)}</span></div>
+        <div class="cc-row"><span>Output</span><span class="cc-val">${b.output} ${b.unit}</span></div>
+        <div class="cc-row"><span>Eff. Ratio</span><span class="cc-val">${eff}</span></div>
+        <div class="cc-row"><span>Pollution</span><span>${pollLabel}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// REFERENCE TABLE
+// ─────────────────────────────────────────────
+const CAT_LABELS = {
+  power:'⚡ Power', water:'💧 Water/Sewage', waste:'🗑️ Waste',
+  healthcare:'🏥 Healthcare', education:'🎓 Education',
+  fire:'🚒 Fire', police:'👮 Police'
+};
+
+let refSortKey = 'cost';
+let refSortDir = 1; // 1=asc, -1=desc
+
+function buildRefRows() {
+  // Flatten all buildings into one array with category attached
+  const rows = [];
+  for (const [cat, list] of Object.entries(DATA)) {
+    for (const b of list) {
+      rows.push({
+        ...b,
+        cat,
+        eff: parseFloat((b.output / (b.upkeep * 4)).toFixed(3)),
+        totalPoll: Object.values(b.pollution).reduce((a,c)=>a+c,0),
+      });
+    }
+  }
+  return rows;
+}
+
+function renderRefTable() {
+  const catFilter = document.getElementById('ref-cat-filter').value;
+  const search    = document.getElementById('ref-search').value.toLowerCase();
+
+  let rows = buildRefRows();
+
+  if (catFilter !== 'all') rows = rows.filter(r => r.cat === catFilter);
+  if (search) rows = rows.filter(r => r.name.toLowerCase().includes(search) || CAT_LABELS[r.cat].toLowerCase().includes(search));
+
+  // Sort
+  rows.sort((a, b) => {
+    let av = a[refSortKey], bv = b[refSortKey];
+    if (typeof av === 'string') return av.localeCompare(bv) * refSortDir;
+    return (av - bv) * refSortDir;
+  });
+
+  // Update sort indicators
+  document.querySelectorAll('.ref-table th').forEach(th => {
+    th.classList.remove('sorted-asc','sorted-desc');
+  });
+  const activeHeader = document.getElementById('rh-' + refSortKey);
+  if (activeHeader) activeHeader.classList.add(refSortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+
+  function pollBadge(val, type) {
+    const level = val === 0 ? 0 : val < 25 ? 1 : val < 55 ? 2 : 3;
+    const onClass = level > 0 ? `on-${type}` : '';
+    const opacity = level === 0 ? 'opacity:.25' : level === 1 ? 'opacity:.5' : level === 2 ? 'opacity:.8' : '';
+    return `<div style="display:flex;align-items:center;gap:4px;font-family:'Share Tech Mono';font-size:.72rem;">
+      <div class="poll-dot ${onClass}" style="${opacity}" title="${type}: ${val}%"></div>
+      <span style="color:${val===0?'var(--text-dim)':val<25?'var(--green)':val<55?'var(--yellow)':'var(--red)'}">${val}%</span>
+    </div>`;
+  }
+
+  function totalPollBadge(total) {
+    if (total < 60)  return `<span class="badge badge-green">Low</span>`;
+    if (total < 140) return `<span class="badge badge-yellow">Medium</span>`;
+    return `<span class="badge badge-red">High</span>`;
+  }
+
+  const tbody = document.getElementById('refTbody');
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td class="name-cell">${r.name}</td>
+      <td class="cat-cell">${CAT_LABELS[r.cat]}</td>
+      <td class="mono">₡${fmt(r.cost)}</td>
+      <td class="mono">₡${fmt(r.upkeep * 4)}</td>
+      <td class="mono">${fmt(r.output)} <span style="color:var(--text-dim);font-size:.7rem">${r.unit}</span></td>
+      <td class="mono">${fmt(r.capPer)} <span style="color:var(--text-dim);font-size:.7rem">${r.unit}</span></td>
+      <td class="mono" style="color:${r.eff>2?'var(--green)':r.eff>1?'var(--text)':'var(--yellow)'}">${r.eff.toFixed(2)}</td>
+      <td>${totalPollBadge(r.totalPoll)}</td>
+      <td>${pollBadge(r.pollution.air,   'air')}</td>
+      <td>${pollBadge(r.pollution.water, 'water')}</td>
+      <td>${pollBadge(r.pollution.noise, 'noise')}</td>
+      <td>${pollBadge(r.pollution.ground,'ground')}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('refRowCount').textContent = `Showing ${rows.length} building${rows.length!==1?'s':''} · Click any column to sort`;
+}
+
+function sortRef(key) {
+  if (refSortKey === key) {
+    refSortDir *= -1;
+  } else {
+    refSortKey = key;
+    refSortDir = key === 'name' || key === 'cat' ? 1 : -1; // default desc for numbers
+  }
+  renderRefTable();
+}
+
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+</script>
+
+<footer style="position:relative;z-index:1;margin-top:40px;padding:18px 20px;border-top:1px solid #131e30;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#2e3f58;letter-spacing:1px;line-height:1.9;">
+  <span>© 2025 BasicWombat · Skylines Utilities Calc · MIT License</span>
+  <span style="margin:0 10px;opacity:.4;">·</span>
+  <span>Game data © Colossal Order / Paradox Interactive. This tool is unofficial and not affiliated with or endorsed by the game developers.</span>
+  <span style="margin:0 10px;opacity:.4;">·</span>
+  <span>Built with <a href="https://claude.ai" target="_blank" rel="noopener" style="color:#2e3f58;text-decoration:none;border-bottom:1px solid #1e2d45;">Claude AI</a> by Anthropic</span>
+</footer>
+
+</body>
+</html>
