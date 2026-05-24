@@ -57,15 +57,6 @@ open index.html
 
 ---
 
-## Deploying to GitHub Pages
-
-1. Push `index.html` to the `main` branch root
-2. Go to **Settings → Pages**
-3. Set source to **Deploy from branch → main → / (root)**
-4. Your site will be live at `https://basicwombat.github.io/skylines-utilities-calc/`
-
----
-
 ## Tech Stack
 
 - Vanilla HTML, CSS, and JavaScript — zero dependencies, zero frameworks
