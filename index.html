@@ -478,10 +478,19 @@
 
   <!-- ── TAB: SAVED BUILDS ── -->
   <div id="tab-saved" class="tab-content">
-    <div class="panel">
+    <div class="panel" style="margin-bottom:16px;">
       <div class="panel-title">Saved Builds</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <button class="btn" style="width:auto;padding:9px 18px;" onclick="exportTxt()">⬇ Export as .txt</button>
+        <button class="btn" style="width:auto;padding:9px 18px;" onclick="exportCsv()">⬇ Export as .csv</button>
+        <label class="btn btn-secondary" style="width:auto;padding:9px 18px;margin-top:0;cursor:pointer;">
+          ⬆ Import Builds <input type="file" id="importFile" accept=".txt,.csv,.json" style="display:none;" onchange="importBuilds(event)">
+        </label>
+        <button class="btn btn-secondary" style="width:auto;padding:9px 18px;margin-top:0;" onclick="clearAllSaves()">🗑 Clear All Saves</button>
+      </div>
+      <div id="importMsg" style="display:none;" class="tip"></div>
       <div class="builds-list" id="buildsList">
-        <div style="color:var(--text-dim); font-size:.85rem; padding:10px 0;">No saves yet. Calculate a build and click "Save This Build".</div>
+        <div style="color:var(--text-dim); font-size:.85rem; padding:10px 0;">No saves yet. Build a city layout and click "Save Full Build".</div>
       </div>
     </div>
   </div>
@@ -531,56 +540,70 @@
 
   <!-- ── TAB: GUIDE ── -->
   <div id="tab-guide" class="tab-content">
-    <div class="layout">
-      <div class="panel">
-        <div class="panel-title">How to Use</div>
-        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim); margin-bottom:12px;">
-          1. Choose a <strong style="color:var(--text)">category</strong> (Power, Water, Waste, etc.)<br>
-          2. Pick a specific <strong style="color:var(--text)">building type</strong><br>
-          3. Set the number of buildings you want to place<br>
-          4. Adjust the <strong style="color:var(--text)">budget slider</strong> (50–150%) to simulate funding cuts or boosts<br>
-          5. Enter your approximate <strong style="color:var(--text)">city population</strong><br>
-          6. Hit <strong style="color:var(--accent)">Calculate Efficiency</strong>
-        </p>
-        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
-          The <strong style="color:var(--text)">Output/₡ ratio</strong> is your key efficiency metric — higher is better.
-          <br>The <strong style="color:var(--text)">Break-even</strong> estimate shows how many months of operation before the build cost is offset by the city income generated.
-        </p>
-        <hr class="divider">
-        <div class="panel-title">Pollution Guide</div>
-        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
-          <strong style="color:var(--red)">0–30% (Low)</strong> — Safe to place near residential zones<br>
-          <strong style="color:var(--yellow)">31–60% (Medium)</strong> — Use a buffer zone of 2–4 blocks<br>
-          <strong style="color:var(--red)">61%+ (High)</strong> — Industrial zones only, or use noise/pollution policies
-        </p>
-        <hr class="divider">
-        <div class="panel-title">Tips &amp; Tricks</div>
-        <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
-          • Wind Turbines &amp; Solar have zero pollution but need large footprints<br>
-          • Nuclear power has a high build cost but excellent long-term value<br>
-          • Water towers are cheap early-game but don't scale well<br>
-          • Combine small &amp; large sewage plants for balanced coverage<br>
-          • Running budget above 100% increases output and below 100% reduces upkeep but degrades service
-        </p>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Data Reference</div>
-        <p style="font-size:.78rem; color:var(--text-dim); line-height:1.6; margin-bottom:12px;">
-          All figures are based on Cities: Skylines base game + After Dark values. DLC buildings (Sunset Harbour, Industries, etc.) may differ slightly. Budget adjustments are linear approximations.
-        </p>
-        <table class="summary-table">
-          <thead>
-            <tr><th>Metric</th><th>Unit</th><th>Notes</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Build Cost</td><td>₡ (Cimoleons)</td><td>One-time placement</td></tr>
-            <tr><td>Upkeep</td><td>₡/week</td><td>Shown as monthly (×4)</td></tr>
-            <tr><td>Output</td><td>MW / m³ / units</td><td>At 100% budget</td></tr>
-            <tr><td>Pollution</td><td>0–100%</td><td>Relative severity scale</td></tr>
-            <tr><td>Coverage</td><td>% of pop</td><td>Based on per-building capacity</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="panel">
+      <div class="panel-title">How to Use</div>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim); margin-bottom:12px;">
+        1. Choose a <strong style="color:var(--text)">category</strong> (Power, Water, Waste, etc.)<br>
+        2. Pick a specific <strong style="color:var(--text)">building type</strong><br>
+        3. Set the number of buildings you want to place<br>
+        4. Adjust the <strong style="color:var(--text)">budget slider</strong> (50–150%) to simulate funding cuts or boosts<br>
+        5. Enter your approximate <strong style="color:var(--text)">city population</strong><br>
+        6. Click <strong style="color:var(--accent)">+ Add to Build</strong> — repeat for each utility type<br>
+        7. View combined totals, coverage and pollution in the results panel
+      </p>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+        The <strong style="color:var(--text)">Output/₡ ratio</strong> is your key efficiency metric — higher is better.
+      </p>
+
+      <hr class="divider">
+      <div class="panel-title">Data Reference</div>
+      <p style="font-size:.78rem; color:var(--text-dim); line-height:1.6; margin-bottom:12px;">
+        All figures are based on Cities: Skylines base game + After Dark values. DLC buildings (Sunset Harbour, Industries, etc.) may differ slightly. Budget adjustments are linear approximations.
+      </p>
+      <table class="summary-table">
+        <thead>
+          <tr><th>Metric</th><th>Unit</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Build Cost</td><td>₡ (Cimoleons)</td><td>One-time placement</td></tr>
+          <tr><td>Upkeep</td><td>₡/week</td><td>Shown as monthly (×4)</td></tr>
+          <tr><td>Output</td><td>MW / m³ / units</td><td>At 100% budget</td></tr>
+          <tr><td>Pollution</td><td>0–100%</td><td>Relative severity scale</td></tr>
+          <tr><td>Coverage</td><td>% of pop</td><td>Based on per-building capacity</td></tr>
+        </tbody>
+      </table>
+
+      <hr class="divider">
+      <div class="panel-title">Pollution Guide</div>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+        <strong style="color:var(--green)">0–30% (Low)</strong> — Safe to place near residential zones<br>
+        <strong style="color:var(--yellow)">31–60% (Medium)</strong> — Use a buffer zone of 2–4 blocks<br>
+        <strong style="color:var(--red)">61%+ (High)</strong> — Industrial zones only, or use noise/pollution policies
+      </p>
+
+      <hr class="divider">
+      <div class="panel-title">Tips &amp; Tricks</div>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+        • Wind Turbines &amp; Solar have zero pollution but need large footprints<br>
+        • Nuclear power has a high build cost but excellent long-term value<br>
+        • Water towers are cheap early-game but don't scale well<br>
+        • Combine small &amp; large sewage plants for balanced coverage<br>
+        • Running budget above 100% increases output and below 100% reduces upkeep but degrades service
+      </p>
+
+      <hr class="divider">
+      <div class="panel-title">Saved Builds &amp; Storage</div>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim); margin-bottom:10px;">
+        Builds are saved to your browser's <strong style="color:var(--text)">localStorage</strong> — they persist between sessions automatically, but are tied to this browser and device. They will be lost if you clear your browser's site data or use a different browser/device.
+      </p>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim);">
+        To take your builds elsewhere, use the <strong style="color:var(--text)">Export</strong> buttons in the Saved Builds tab:
+      </p>
+      <p style="font-size:.85rem; line-height:1.7; color:var(--text-dim); margin-top:6px;">
+        <strong style="color:var(--accent)">⬇ Export as .txt</strong> — human-readable summary, easy to read or share<br>
+        <strong style="color:var(--accent)">⬇ Export as .csv</strong> — spreadsheet-compatible, open in Excel or Google Sheets<br>
+        <strong style="color:var(--accent)">⬆ Import Builds</strong> — load a previously exported <code style="font-family:'Share Tech Mono';font-size:.8rem;color:var(--text)">.txt</code> or <code style="font-family:'Share Tech Mono';font-size:.8rem;color:var(--text)">.csv</code> file to restore saves on any device
+      </p>
     </div>
   </div>
 
@@ -911,6 +934,147 @@ function deleteSave(id) {
   saves = saves.filter(s=>s.id!==id);
   localStorage.setItem('cs_saves', JSON.stringify(saves));
   renderSaves();
+}
+
+function clearAllSaves() {
+  if (!saves.length) return;
+  if (!confirm('Delete all saved builds? This cannot be undone.')) return;
+  saves = [];
+  localStorage.setItem('cs_saves', JSON.stringify(saves));
+  renderSaves();
+}
+
+// ─────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportTxt() {
+  if (!saves.length) { alert('No saved builds to export.'); return; }
+  const lines = ['SKYLINES UTILITIES CALC — Saved Builds Export', '='.repeat(50), ''];
+  saves.forEach((s, i) => {
+    lines.push('Build ' + (i+1) + ': ' + s.name);
+    lines.push('-'.repeat(40));
+    if (s.detail) lines.push('Utilities : ' + s.detail);
+    lines.push('Population: ' + fmt(s.pop));
+    lines.push('Build Cost: ₡' + fmt(s.cost));
+    lines.push('Monthly   : ₡' + fmt(s.maint));
+    lines.push('Buildings : ' + s.count);
+    lines.push('Saved     : ' + new Date(s.id).toLocaleString());
+    lines.push('');
+  });
+  lines.push('='.repeat(50));
+  lines.push('Exported from https://basicwombat.github.io/skylines-utilities-calc/');
+  downloadFile('skylines-utilities-calc-builds.txt', lines.join('\n'), 'text/plain');
+}
+
+function exportCsv() {
+  if (!saves.length) { alert('No saved builds to export.'); return; }
+  const header = ['Name','Utilities','Population','Build Cost (₡)','Monthly Upkeep (₡)','Buildings','Saved'];
+  const rows = saves.map(s => [
+    '"' + s.name.replace(/"/g,'""') + '"',
+    '"' + (s.detail||'').replace(/"/g,'""') + '"',
+    s.pop, s.cost, s.maint, s.count,
+    '"' + new Date(s.id).toLocaleString() + '"'
+  ]);
+  const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n');
+  downloadFile('skylines-utilities-calc-builds.csv', csv, 'text/csv');
+}
+
+// ─────────────────────────────────────────────
+// IMPORT
+// ─────────────────────────────────────────────
+function importBuilds(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    try {
+      let imported = [];
+      if (file.name.endsWith('.csv')) {
+        imported = parseCsvImport(text);
+      } else {
+        imported = parseTxtImport(text);
+      }
+      if (!imported.length) throw new Error('No valid builds found in file.');
+      const existingIds = new Set(saves.map(s => s.id));
+      const fresh = imported.filter(s => !existingIds.has(s.id));
+      saves = [...fresh, ...saves].slice(0, 20);
+      localStorage.setItem('cs_saves', JSON.stringify(saves));
+      renderSaves();
+      const skipped = imported.length - fresh.length;
+      showImportMsg(
+        '✅ Imported ' + fresh.length + ' build' + (fresh.length!==1?'s':'') +
+        (skipped > 0 ? ' (' + skipped + ' duplicate' + (skipped!==1?'s':'') + ' skipped)' : '') + '.',
+        false
+      );
+    } catch(err) {
+      showImportMsg('❌ Import failed: ' + err.message, true);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function showImportMsg(msg, isError) {
+  const el = document.getElementById('importMsg');
+  el.style.display = 'block';
+  el.style.borderLeftColor = isError ? 'var(--red)' : 'var(--green)';
+  el.textContent = msg;
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function parseCsvImport(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) throw new Error('CSV has no data rows.');
+  return lines.slice(1).map((line, i) => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (const c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+    if (cols.length < 6) throw new Error('Row ' + (i+2) + ' has too few columns.');
+    const savedDate = cols[6] ? new Date(cols[6]).getTime() : Date.now() + i;
+    return {
+      id:     isNaN(savedDate) ? Date.now() + i : savedDate,
+      name:   cols[0] || ('Imported Build ' + (i+1)),
+      detail: cols[1] || '',
+      pop:    parseInt(cols[2]) || 0,
+      cost:   parseInt(cols[3]) || 0,
+      maint:  parseInt(cols[4]) || 0,
+      count:  parseInt(cols[5]) || 0,
+    };
+  }).filter(s => s.name);
+}
+
+function parseTxtImport(text) {
+  const blocks = text.split(/\nBuild \d+: /);
+  blocks.shift();
+  return blocks.map((block, i) => {
+    const nameMatch = block.match(/^(.+)/);
+    const name    = nameMatch ? nameMatch[1].trim() : ('Imported Build ' + (i+1));
+    const detail  = (block.match(/Utilities\s*:\s*(.+)/) || [])[1] || '';
+    const pop     = parseInt(((block.match(/Population\s*:\s*([\d,.KM]+)/) || [])[1]||'').replace(/[,KMkm]/g,'')) || 0;
+    const cost    = parseInt(((block.match(/Build Cost\s*:\s*₡?([\d.KM]+)/) || [])[1]||'').replace(/[KMkm]/g,'')) || 0;
+    const maint   = parseInt(((block.match(/Monthly\s*:\s*₡?([\d.KM]+)/) || [])[1]||'').replace(/[KMkm]/g,'')) || 0;
+    const count   = parseInt((block.match(/Buildings\s*:\s*(\d+)/) || [])[1]) || 0;
+    const savedStr = (block.match(/Saved\s*:\s*(.+)/) || [])[1] || '';
+    const savedDate = savedStr ? new Date(savedStr.trim()).getTime() : Date.now() + i;
+    return {
+      id:    isNaN(savedDate) ? Date.now() + i : savedDate,
+      name, detail, pop, cost, maint, count,
+    };
+  }).filter(s => s.name);
 }
 
 // ─────────────────────────────────────────────
