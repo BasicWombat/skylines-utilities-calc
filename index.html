@@ -622,7 +622,9 @@ const DATA = {
     { name:'Solar Power Plant',   cost:22000, upkeep:480,  output:54,  unit:'MW', capPer:1350,  pollution:{air:0,  water:0,  noise:0,  ground:5},  tip:'Clean energy with no air/noise pollution. Good mid-game option. Output is weather-independent in-game.' },
     { name:'Nuclear Power Plant', cost:100000,upkeep:2800, output:640, unit:'MW', capPer:16000, pollution:{air:0,  water:10, noise:20, ground:5},  tip:'Highest output in the game. Expensive upfront but great ROI for large cities. Very low pollution.' },
     { name:'Fusion Power Plant',  cost:300000,upkeep:5000, output:1600,unit:'MW', capPer:40000, pollution:{air:0,  water:0,  noise:10, ground:0},  tip:'End-game powerhouse. Massive output, minimal pollution. Worth it for mega cities.' },
-    { name:'Geothermal Plant',    cost:45000, upkeep:900,  output:60,  unit:'MW', capPer:1500,  pollution:{air:5,  water:5,  noise:15, ground:10}, tip:'Very clean and consistent. Available in volcano map themes. Excellent for green playthroughs.' },
+    { name:'Geothermal Plant [Green Cities]',    cost:45000, upkeep:900,  output:60,  unit:'MW', capPer:1500,  pollution:{air:5,  water:5,  noise:15, ground:10}, tip:'Very clean and consistent. Available in volcano map themes. Excellent for green playthroughs.' },
+    { name:'Solar Updraft Tower [Green Cities]', cost:180000,upkeep:2240, output:240, unit:'MW', capPer:6000,  pollution:{air:0,  water:0,  noise:20, ground:5},  tip:'Green Cities DLC. Constant 240 MW output — unlike Solar Power Plants it does not drop at night. Great value between Nuclear and Solar. Zero air pollution.' },
+    { name:'OTEC Plant [Green Cities]',          cost:350000,upkeep:6400, output:480, unit:'MW', capPer:12000, pollution:{air:0,  water:0,  noise:15, ground:0},  tip:'Green Cities DLC — Ocean Thermal Energy Conversion. Must be placed on a shoreline. 480 MW of clean, constant power. Excellent late-game alternative to Nuclear.' },
   ],
   water: [
     { name:'Water Tower',         cost:2000,  upkeep:160,  output:1600, unit:'m³/w', capPer:400,  pollution:{air:0, water:0, noise:10, ground:0}, tip:'Great early-game starter. Limited capacity — you\'ll need many for a growing city.' },
@@ -635,14 +637,14 @@ const DATA = {
   waste: [
     { name:'Landfill Site',       cost:18000, upkeep:240,  output:500000,unit:'kg', capPer:125000,pollution:{air:20,water:30,noise:20,ground:80}, tip:'Early game staple but fills up. Produces significant ground pollution. Relocate when decommissioning.' },
     { name:'Incineration Plant',  cost:30000, upkeep:960,  output:48000, unit:'kg/w',capPer:12000,pollution:{air:70,water:10,noise:40,ground:10}, tip:'Processes waste continuously but generates heavy air pollution. Zone industrial buffer.' },
-    { name:'Recycling Centre',    cost:35000, upkeep:1200, output:36000, unit:'kg/w',capPer:9000, pollution:{air:15,water:10,noise:30,ground:10}, tip:'Lower pollution than incinerators with moderate throughput. Good for eco-friendly cities.' },
+    { name:'Recycling Centre [Green Cities]',    cost:35000, upkeep:1200, output:36000, unit:'kg/w',capPer:9000, pollution:{air:15,water:10,noise:30,ground:10}, tip:'Lower pollution than incinerators with moderate throughput. Good for eco-friendly cities.' },
     { name:'Waste Transfer Facility',cost:45000,upkeep:1600,output:60000,unit:'kg/w',capPer:15000,pollution:{air:25,water:15,noise:35,ground:20}, tip:'Boosts overall garbage collection efficiency. Best used alongside other waste facilities.' },
   ],
   healthcare: [
     { name:'Medical Clinic',      cost:12000, upkeep:800,  output:500,   unit:'pts', capPer:500,  pollution:{air:0, water:0, noise:10, ground:0}, tip:'Good early-game coverage. Cheap to run, serves small residential areas well.' },
     { name:'Hospital',            cost:70000, upkeep:3200, output:2500,  unit:'pts', capPer:2500, pollution:{air:0, water:0, noise:15, ground:0}, tip:'Major healthcare for large districts. High upkeep but vital for city health happiness.' },
-    { name:'Medical Helicopter Depot',cost:20000,upkeep:1200,output:800, unit:'pts', capPer:800,  pollution:{air:5, water:0, noise:40, ground:0}, tip:'Covers a wide area. Noise pollution from heli traffic — place away from residential.' },
-    { name:'Sauna (After Dark)',  cost:8000,  upkeep:400,  output:300,   unit:'pts', capPer:300,  pollution:{air:0, water:0, noise:5,  ground:0}, tip:'Unique leisure-health hybrid. Boosts happiness and provides minor health bonus.' },
+    { name:'Medical Helicopter Depot [Natural Disasters]',cost:20000,upkeep:1200,output:800, unit:'pts', capPer:800,  pollution:{air:5, water:0, noise:40, ground:0}, tip:'Covers a wide area. Noise pollution from heli traffic — place away from residential.' },
+    { name:'Sauna [Snowfall]',  cost:8000,  upkeep:400,  output:300,   unit:'pts', capPer:300,  pollution:{air:0, water:0, noise:5,  ground:0}, tip:'Unique leisure-health hybrid. Boosts happiness and provides minor health bonus.' },
   ],
   education: [
     { name:'Elementary School',   cost:8000,  upkeep:640,  output:500,   unit:'students', capPer:500,  pollution:{air:0, water:0, noise:15, ground:0}, tip:'Foundation of education. Place in each residential district. Low upkeep, essential early.' },
@@ -652,11 +654,11 @@ const DATA = {
   ],
   fire: [
     { name:'Fire Station',        cost:15000, upkeep:960,  output:400,   unit:'coverage', capPer:4000, pollution:{air:5, water:0, noise:30, ground:0}, tip:'Standard coverage. One per dense district. Noise from sirens — minor concern.' },
-    { name:'Fire Helicopter Depot',cost:25000,upkeep:1600, output:800,   unit:'coverage', capPer:8000, pollution:{air:10,water:0, noise:50, ground:0}, tip:'Excellent range for large/spread cities. Higher noise — avoid placing near parks.' },
+    { name:'Fire Helicopter Depot [Natural Disasters]',cost:25000,upkeep:1600, output:800,   unit:'coverage', capPer:8000, pollution:{air:10,water:0, noise:50, ground:0}, tip:'Excellent range for large/spread cities. Higher noise — avoid placing near parks.' },
   ],
   police: [
     { name:'Police Station',      cost:15000, upkeep:960,  output:400,   unit:'coverage', capPer:5000, pollution:{air:0, water:0, noise:20, ground:0}, tip:'Essential for crime control. Cover residential and commercial zones first.' },
-    { name:'Police Helicopter Depot',cost:25000,upkeep:1600,output:800,  unit:'coverage', capPer:10000,pollution:{air:5, water:0, noise:50, ground:0}, tip:'Wide area coverage. Higher noise. Most effective in sprawling low-density cities.' },
+    { name:'Police Helicopter Depot [Natural Disasters]',cost:25000,upkeep:1600,output:800,  unit:'coverage', capPer:10000,pollution:{air:5, water:0, noise:50, ground:0}, tip:'Wide area coverage. Higher noise. Most effective in sprawling low-density cities.' },
   ],
 };
 
